@@ -1,0 +1,36 @@
+================================================================
+xy_color --- Utilities and demos for color science in Python.
+================================================================
+
+Author: Ying Xiong.
+Created: Oct 22, 2014.
+
+================================================================
+Usage.
+================================================================
+
+Install prerequisites: pip install numpy scipy matplotlib
+
+Run tests: python -m unittest discover -p "*_test.py"
+
+Run demos: python demos.py
+
+================================================================
+Names and acronyms.
+================================================================
+
+SPD: spectrual power distribution. This is a function of wavelength $\lambda$,
+and describes the power per unit area per unit wavelength of an illumination.
+
+CMF: color matching function. This is a function of wavelength $\lambda$
+describing the chromatic response of the 'observer'. A function $\bar{x}(\cdot)$
+will have response $\bar{x}(\lambda)$ at a unit-power light of single wavelength
+$\lambda$, and given a spectral power distribution $I(\lambda)$, the response
+will be $$X = \int I(\lambda) \bar{x}(\lambda) d\lambda$$.
+
+Note that SPD and CMF should not be mistaken with one another. For example, the
+CIE RGB color space uses three monochromatic (single-wavelength) primary colors,
+which means their SPDs are delta functions, but their CMFs are not.
+
+LMS: a color space represented by the response of three types of cones of the
+human eye.
