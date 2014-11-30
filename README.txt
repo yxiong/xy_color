@@ -34,3 +34,12 @@ which means their SPDs are delta functions, but their CMFs are not.
 
 LMS: a color space represented by the response of three types of cones of the
 human eye.
+
+WL: wavelength list. This is a 1D ndarray with equally-spaced entries in
+increasing order. The wavelength entries are in unit of nano-meter. A typically
+used WL for visible light range is np.array([360, 361, 362, ..., 830]).
+
+FW(s): function(s) of wavelength. For a single function, it is represented as a
+1D ndarray of length `N`. For multiple functions, they are represented as a 2D
+ndarray of shape `(K, N)`, where `K` is the number of loaded functions, and
+`fw[k]` is the `k`-th function, with `0 <= k < K`.

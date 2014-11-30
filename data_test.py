@@ -5,6 +5,8 @@
 
 import unittest
 
+import numpy as np
+
 from data import *
 
 class DataTest(unittest.TestCase):
@@ -34,6 +36,29 @@ class DataTest(unittest.TestCase):
         self.assertAlmostEqual(cmfs[3882,1], -4.63331)
         self.assertAlmostEqual(cmfs[3882,2], -5.73979)
         self.assertAlmostEqual(cmfs[3882,3], -np.inf)
+
+    def test_load_fw(self):
+        # Load CIE-XYZ color matching functions.
+        xyz_cmfs, wl = load_fw("xyz-cmfs")
+        self.assertTrue(np.max(np.abs(wl - np.arange(360, 831))) < 1.0e-5)
+        self.assertEqual(xyz_cmfs.shape[0], 3)
+        self.assertAlmostEqual(xyz_cmfs[0,8], 0.000329388)
+        self.assertAlmostEqual(xyz_cmfs[1,8], 0.000009839844)
+        self.assertAlmostEqual(xyz_cmfs[2,8], 0.001543579)
+
+        # Load CIE-D65 spectral power distribution with given wavelength list.
+        d65_spd, _ = load_fw("d65-spd", wl)
+        self.assertEqual(len(d65_spd), len(wl))
+        self.assertAlmostEqual(d65_spd[8], 50.998900)
+
+    def test_d65(self):
+        # Compute the xy coordinates of d65, and check with ground truth.
+        xyz_cmfs, wl = load_fw("xyz-cmfs")
+        d65_spd, _ = load_fw("d65-spd", wl)
+        d65_xyz = np.dot(xyz_cmfs, d65_spd)
+        d65_xy = (d65_xyz / np.sum(d65_xyz))[:2]
+        self.assertAlmostEqual(d65_xy[0], 0.3127, places=4)
+        self.assertAlmostEqual(d65_xy[1], 0.3290, places=4)
 
 if __name__ == "__main__":
     unittest.main()

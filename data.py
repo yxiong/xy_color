@@ -49,10 +49,81 @@ def read_cvrl_csv(csv_filename, empty_val = 0.0):
                 for l in lines]
         return np.array(cmfs)
 
-def load_xyz_cmfs():
-    """Load the CIE-XYZ color matching functions."""
-    return read_cvrl_csv("cvrl-data/ciexyz31_1.csv")
+def adjust_wl(fw_in, wl_in, wl_out):
+    """Adjust the wavelength list of the input function(s)."""
+    # For multiple functions, do the adjustment on each one of them and
+    # concatenate results together.
+    if len(fw_in.shape) > 1:
+        fw_out_list = []
+        for k in xrange(fw_in.shape[0]):
+            fw_out_list.append(adjust_wl(fw_in[k], wl_in, wl_out))
+        return np.vstack(fw_out_list)
+    # Do the adjustment for a single wavelength function.
+    assert (wl_in[1] - wl_in[0]) == (wl_out[1] - wl_out[0])
+    dw = wl_in[1] - wl_in[0]
+    left_index = int(np.round((wl_out[0] - wl_in[0]) / dw))
+    right_index = int(np.round((wl_out[-1] - wl_in[-1]) / dw))
+    # The result contains three parts (two pads and a center).
+    left_pad = np.zeros(0)
+    center = fw_in
+    right_pad = np.zeros(0)
+    # Compute left pad.
+    if left_index < 0:
+        left_pad = np.zeros(-left_index)
+    else:
+        center = center[left_index:]
+    # Compute right pad.
+    if right_index >= 0:
+        right_pad = np.zeros(right_index)
+    else:
+        center = center[:right_pad]
+    return np.concatenate((left_pad, center, right_pad))
 
-def load_d65_spd():
-    """Load the CIE D65 spectral power distribution."""
-    return read_cvrl_csv("cvrl-data/Illuminantd65.csv")
+def load_fw(name, wl=None):
+    """Load function of wavelength.
+
+    Parameters
+    ----------
+    name: a string for the name of function.
+          "xyz-cmfs": CIE-XYZ color matching functions.
+          "d65-spd": CIE-D65 spectral power distribution.
+
+    wl: wavelength list, optional.
+
+    Returns
+    -------
+    fw: the loaded function(s) of wavelength.
+
+    wl: the wavelength list.
+        It will be the same as input `wl` if it is not `None`, or will be loaded
+        together with `fw` as input data.
+    """
+    # Load the 'fw' and corresponding 'load_wl'.
+    if name == "xyz-cmfs":
+        csv_data = read_cvrl_csv("cvrl-data/ciexyz31_1.csv")
+        load_wl = csv_data[:,0]
+        fw = csv_data[:, 1:].T
+    elif name == "d65-spd":
+        csv_data = read_cvrl_csv("cvrl-data/Illuminantd65.csv")
+        load_wl = csv_data[:,0]
+        fw = csv_data[:,1]
+    else:
+        raise Exception("Unknown name '%s' for `load_fw`." % name)
+    # Adjust the 'wl' if provided as input.
+    if wl is not None:
+        return (adjust_wl(fw, load_wl, wl), wl)
+    else:
+        return (fw, load_wl)
+
+def get_blackbody_spd(temperature, wl):
+    """Get blackbody radiation spectral power distribution.
+    """
+    # Setup constants.
+    h = 6.6260695729e-34    # Planck constant.
+    c = 299792458           # Speed of light.
+    k = 1.380648813e-23     # Boltzmann constant.
+    # Compute SPD by Planck's law.
+    wl = wl * 1e-9
+    spd = 2*h*(c**2) / np.power(wl,5) / (np.exp(h*c/wl/k/temperature) - 1)
+    # Normalize the spd such that it sums to 1.
+    return spd / np.sum(spd)
