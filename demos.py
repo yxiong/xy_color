@@ -169,6 +169,24 @@ def plot_color_temperature_curve(ax, xyz_cmfs, wl):
         ax.plot(x, y, 'wo')
         ax.text(x - text_distance*np.cos(angle), y - text_distance*np.sin(angle),
                 str(int(temperatures[i])) + "K", ha="center", va="center")
+    # Plot CIE Illuminant D65.
+    d65_spd, _ = load_fw("d65-spd", wl)
+    d65_xyz = np.dot(xyz_cmfs, d65_spd)
+    d65_xy = (d65_xyz / np.sum(d65_xyz))[:2]
+    ax.plot(d65_xy[0], d65_xy[1], 'ko')
+    ax.text(d65_xy[0]-text_distance, d65_xy[1]+text_distance,
+            'D65', ha="center", va="center")
+
+def plot_color_space_triangles(ax):
+    # Plot the sRGB triangle.
+    srgb_triangle_xyz = np.array([srgb_red_xyz, srgb_green_xyz, srgb_blue_xyz]).T
+    plot_triangle(ax, srgb_triangle_xyz[:2,:], color="b", linewidth=2)
+    ax.text(0.32, 0.5, "sRGB", ha="center", va="center", color="b")
+
+    # Plot Adobe RGB (1998) triangle.
+    adobe_triangle_xy = np.array([adobe_red_xy, adobe_green_xy, adobe_blue_xy]).T
+    plot_triangle(ax, adobe_triangle_xy, "--r", linewidth=2)
+    ax.text(0.11, 0.5, "Adobe RGB\n(1998)", ha="center", va="center", color="r")
 
 def demo_show_horseshoe():
     # Load the CMFs of monochromatic colors.
@@ -176,27 +194,13 @@ def demo_show_horseshoe():
     mono_xy = normalize_columns(xyz_cmfs)[:2, :]
     ax = plt.figure().gca()
 
+    # Do the drawing.
     draw_horseshoe_colors(ax, mono_xy)
     plot_horseshoe_curve_with_ticks(ax, mono_xy, wl)
     plot_color_temperature_curve(ax, xyz_cmfs, wl)
+    plot_color_space_triangles(ax)
 
-    # Plot the sRGB triangle.
-    srgb_triangle_srgb_linear = np.array([[1,0,0], [0,1,0], [0,0,1]]).T
-    srgb_triangle_xyz = color_space_transform(
-        srgb_triangle_srgb_linear, "sRGB-linear", "CIE-XYZ")
-    srgb_triangle_xy = normalize_columns(srgb_triangle_xyz)[:2, :]
-    plot_triangle(ax, srgb_triangle_xy, color="b", linewidth=2)
-    ax.annotate("sRGB", xy=srgb_triangle_xy[:,1], color="b")
-
-    # Plot CIE Illuminant D65.
-    d65_spd, _ = load_fw("d65-spd", wl)
-    d65_xyz = np.dot(xyz_cmfs, d65_spd)
-    d65_xy = (d65_xyz / np.sum(d65_xyz))[:2]
-    ax.plot(d65_xy[0], d65_xy[1], 'ko')
-    ax.text(d65_xy[0]-0.03, d65_xy[1]+0.03, 'D65', ha="center", va="center")
-
-    # TODO: plot the black body radiation temperature curve, etc.
-
+    # Set the axes properties.
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_aspect("equal")

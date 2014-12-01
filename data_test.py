@@ -60,5 +60,50 @@ class DataTest(unittest.TestCase):
         self.assertAlmostEqual(d65_xy[0], 0.3127, places=4)
         self.assertAlmostEqual(d65_xy[1], 0.3290, places=4)
 
+    def test_srgb(self):
+        # Check the normalized xyz chromaticity coordinates of RGB and white
+        # point.
+        def check_normalized_xyz(xyz, n_xyz, places):
+            self.assertAlmostEqual(np.sum(n_xyz), 1.0)
+            xyz /= np.sum(xyz)
+            self.assertAlmostEqual(xyz[0], n_xyz[0], places=places)
+            self.assertAlmostEqual(xyz[1], n_xyz[1], places=places)
+            self.assertAlmostEqual(xyz[2], n_xyz[2], places=places)
+        check_normalized_xyz(np.dot(srgb_to_xyz_matrix, np.array([1,0,0])),
+                             srgb_red_xyz, 3)
+        check_normalized_xyz(np.dot(srgb_to_xyz_matrix, np.array([0,1,0])),
+                             srgb_green_xyz, 3)
+        check_normalized_xyz(np.dot(srgb_to_xyz_matrix, np.array([0,0,1])),
+                             srgb_blue_xyz, 3)
+        check_normalized_xyz(np.dot(srgb_to_xyz_matrix, np.array([1,1,1])),
+                             srgb_white_xyz, 4)
+
+    def test_adobe(self):
+        # Make sure the matrices convert to and from XYZ colorspace are invert
+        # of each other.
+        err = np.dot(xyz_to_adobe_matrix, adobe_to_xyz_matrix) - np.eye(3)
+        self.assertAlmostEqual(np.max(np.abs(err)), 0.0, places=4)
+        err = np.dot(icc_pcs_to_adobe_matrix, adobe_to_icc_pcs_matrix)-np.eye(3)
+        self.assertAlmostEqual(np.max(np.abs(err)), 0.0, places=4)
+
+        # Check the xy chromaticity coordinates of RGB and white point.
+        def check_xy(c_xyz, c_xy):
+            s = np.sum(c_xyz)
+            self.assertAlmostEqual(c_xyz[0]/s, c_xy[0], places=4)
+            self.assertAlmostEqual(c_xyz[1]/s, c_xy[1], places=4)
+        check_xy(np.dot(adobe_to_xyz_matrix, np.array([1,0,0])), adobe_red_xy)
+        check_xy(np.dot(adobe_to_xyz_matrix, np.array([0,1,0])), adobe_green_xy)
+        check_xy(np.dot(adobe_to_xyz_matrix, np.array([0,0,1])), adobe_blue_xy)
+        check_xy(np.dot(adobe_to_xyz_matrix, np.array([1,1,1])), adobe_white_xy)
+
+        # Check that the (normalized) white point should match CIE D65.
+        wp_xyz = np.dot(adobe_to_xyz_matrix, np.array([95.047, 100.00, 108.883]))
+        norm_wp_xyz = adobe_abs_to_norm_xyz(wp_xyz)
+        norm_wp_xyz = adobe_abs_to_norm_xyz(np.array([95.047, 100.00, 108.883]))
+        norm_wp_xyz = np.array([95.047, 100.00, 108.883])
+        norm_wp_xy = norm_wp_xyz / np.sum(norm_wp_xyz)
+        self.assertAlmostEqual(norm_wp_xy[0], 0.3127, places=4)
+        self.assertAlmostEqual(norm_wp_xy[1], 0.3290, places=4)
+
 if __name__ == "__main__":
     unittest.main()

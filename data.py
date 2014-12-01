@@ -5,6 +5,14 @@
 
 import numpy as np
 
+# Chromaticity coordinates (normalized xyz) for primaries of sRGB color space.
+# Accessed from: http://www.color.org/chardata/rgb/srgb.pdf.
+# Accessed on: Nov 30, 2014.
+srgb_red_xyz = np.array([0.64, 0.33, 0.03])
+srgb_green_xyz = np.array([0.30, 0.60, 0.10])
+srgb_blue_xyz = np.array([0.15, 0.06, 0.79])
+srgb_white_xyz = np.array([0.3127, 0.3290, 0.3583])
+
 # The color transform matrix from CIE XYZ space to linear sRGB space.
 # Accessed from: http://www.color.org/chardata/rgb/srgb.pdf.
 # Accessed on: Oct 28, 2014.
@@ -17,9 +25,11 @@ srgb_to_xyz_matrix = np.linalg.inv(xyz_to_srgb_matrix)
 
 def srgb_gamma(linear_data):
     """The per-channel, nonlinear transfer function used in sRGB.
+
          / 12.92 * C_linear,                     if C_linear <= 0.0031308
     C = |
          \ 1.055 * C_linear ** (1/2.4) - 0.055,  otherwise
+
     Accessed from: http://www.color.org/chardata/rgb/srgb.pdf.
     Accessed on: Oct 28, 2014."""
     nonlinear_data = np.empty(linear_data.shape)
@@ -28,6 +38,105 @@ def srgb_gamma(linear_data):
     part2 = ~part1
     nonlinear_data[part2] = 1.055 * linear_data[part2] ** (1/2.4) - 0.055
     return nonlinear_data
+
+# Chromaticity coordinates (xy) for primaries of Adobe RGB (1998) color space.
+# Accessed from: http://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf.
+# Accessed on: Nov 30, 2014.
+adobe_red_xy = np.array([0.6400, 0.3300])
+adobe_green_xy = np.array([0.2100, 0.7100])
+adobe_blue_xy = np.array([0.1500, 0.0600])
+adobe_white_xy = np.array([0.3127, 0.3290])
+
+# The color transform matrix from (normalized) CIE-XYZ space to linear Adobe RGB
+# (1998) space.
+# Accessed from: http://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf.
+# Accessed on: Nov 30, 2014.
+xyz_to_adobe_matrix = np.array([
+    [  2.04159, -0.56501, -0.34473],
+    [ -0.96924,  1.87597,  0.04156],
+    [  0.01344, -0.11836,  1.01517]
+])
+adobe_to_xyz_matrix = np.array([
+    [ 0.57667, 0.18556, 0.18823],
+    [ 0.29734, 0.62736, 0.07529],
+    [ 0.02703, 0.07069, 0.99134]
+])
+
+# The color transform matrix from ICC-PCS (ICC Profile Connection Space) to
+# linear Adobe RGB (1998) space.
+# Accessed from: http://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf.
+# Accessed on: Nov 30, 2014.
+icc_pcs_to_adobe_matrix = np.array([
+    [  1.96253, -0.61068, -0.34137],
+    [ -0.97876,  1.91615,  0.03342],
+    [  0.02869, -0.14067,  1.34926]
+])
+adobe_to_icc_pcs_matrix = np.array([
+    [ 0.60974, 0.20528, 0.14919],
+    [ 0.31111, 0.62567, 0.06322],
+    [ 0.01947, 0.06087, 0.74457]
+])
+
+def adobe_abs_to_norm_xyz(abs_xyz):
+    """Converting the absolute XYZ to Adobe normalized XYZ.
+
+        Xn = (Xa - Xk) / (Xw - Xk) * Xw / Yw
+        Yn = (Ya - Yk) / (Yw - Yk)
+        Zn = (Za - Zk) / (Zw - Zk) * Zw / Yw
+
+    where (Xa, Ya, Za) is absolute XYZ value, (Xk, Yk, Zk) = (0.5282, 0.5557,
+    0.6052) is the reference display black point, (Xw, Yw, Zw)=(152.07, 160.00,
+    174.25) is the reference display white point, and (Xn, Yn, Zn) is the
+    normalized XYZ value.
+
+    Input `abs_xyz` can be one of the followings format:
+      1. 1D ndarray of length 3.
+      2. 2D ndarray of size (3,N).
+
+    Output will be of the same format as input.
+
+    Accessed from: http://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf.
+    Accessed on: Nov 30, 2014.
+
+    """
+    # Set the parameters.
+    xk,yk,zk = 0.5282, 0.5557, 0.6052
+    xw,yw,zw = 152.07, 160.00, 174.25
+    # Load input.
+    if len(abs_xyz.shape) == 1:
+        xa,ya,za = abs_xyz[0], abs_xyz[1], abs_xyz[2]
+    elif len(abs_xyz.shape) == 2:
+        assert (abs_xyz.shape[0] == 3)
+        xa,ya,za = abs_xyz[0,:], abs_xyz[1,:], abs_xyz[2,:]
+    else:
+        raise Exception("Unsupported `abs_xyz` format.")
+    # Do the conversion.
+    xn = (xa - xk) / (xw - xk) * xw / yw
+    yn = (ya - yk) / (yw - yk)
+    zn = (za - zk) / (zw - zk) * zw / yw
+    # Organize output as the same format as input.
+    if len(abs_xyz.shape) == 1:
+        return np.array([xn,yn,zn])
+    elif len(abs_xyz.shape) == 2:
+        return np.concatenate([xn,yn,zn])
+
+def adobe_gamma(linear_data):
+    """The per-channel, nonlinear transfer function used in Adobe RGB (1998)
+    color space.
+
+        C= C_linear ^ (1 / 2.19921875)
+
+    The value 2.19921875 is obtained from (2 + 51/256).
+
+    Accessed from: http://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf.
+    Accessed on: Nov 30, 2014.
+    """
+    return np.power(linear_data, 1. / 2.19921875)
+
+# CIE-D65's XYZ tristimulus values, normalized by relative luminance.
+# Accessed from: http://en.wikipedia.org/wiki/Illuminant_D65
+# Accessed on: Nov 30, 2014.
+d65_xyz = np.array([95.047, 100.00, 108.883])
 
 def read_cvrl_csv(csv_filename, empty_val = 0.0):
     """Read a csv file downloaded from cvrl.org.
