@@ -1,23 +1,25 @@
-================================================================
-xy_color --- Utilities and demos for color science in Python.
-================================================================
+xy_color
+========
 
-Author: Ying Xiong.
+Utilities and demos for color science in Python.
+
+Author: Ying Xiong.  
 Created: Oct 22, 2014.
 
-================================================================
-Usage.
-================================================================
 
-Install prerequisites: pip install numpy scipy matplotlib
+Usage
+-----
 
-Run tests: python -m unittest discover -p "*_test.py"
+Install prerequisites: `pip install numpy scipy matplotlib`
 
-Run demos: python demos.py
+Run tests: `python -m unittest discover -p "*_test.py"`
 
-================================================================
-Names and acronyms.
-================================================================
+Run demos: `python demos.py`
+
+
+
+Names and acronyms
+------------------
 
 SPD: spectrual power distribution. This is a function of wavelength $\lambda$,
 and describes the power per unit area per unit wavelength of an illumination.
@@ -28,8 +30,8 @@ will have response $\bar{x}(\lambda)$ at a unit-power light of single wavelength
 $\lambda$, and given a spectral power distribution $I(\lambda)$, the response
 will be $$X = \int I(\lambda) \bar{x}(\lambda) d\lambda$$.
 
-Note that SPD and CMF should not be mistaken with one another. For example, the
-CIE RGB color space uses three monochromatic (single-wavelength) primary colors,
+Note that SPD and CMF should not be mistaken with each another. For example, the
+CIE-RGB color space uses three monochromatic (single-wavelength) primary colors,
 which means their SPDs are delta functions, but their CMFs are not.
 
 LMS: a color space represented by the response of three types of cones of the
@@ -37,7 +39,7 @@ human eye.
 
 WL: wavelength list. This is a 1D ndarray with equally-spaced entries in
 increasing order. The wavelength entries are in unit of nano-meter. A typically
-used WL for visible light range is np.array([360, 361, 362, ..., 830]).
+used WL for visible light range is `np.arange(360, 831, 1)`.
 
 FW(s): function(s) of wavelength. For a single function, it is represented as a
 1D ndarray of length `N`. For multiple functions, they are represented as a 2D
