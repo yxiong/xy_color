@@ -12,9 +12,15 @@ Usage
 
 Install prerequisites: `pip install numpy scipy matplotlib`
 
-Run tests: `python -m unittest discover -p "*_test.py"`
+Install `xy_python_utils`:
 
-Run demos: `python demos.py`
+    git clone https://github.com/yxiong/xy_python_utils
+    cd xy_python_utils
+    python setup.py develop
+
+Run tests: `cd xy_color; python -m unittest discover -p "*_test.py"`
+
+Run demos: `cd xy_color; python demos.py`
 
 
 
