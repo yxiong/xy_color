@@ -1,6 +1,9 @@
 xy_color
 ========
 
+[<img src="https://api.travis-ci.org/yxiong/xy_color.svg?branch=master"
+      alt="Build Status">](https://travis-ci.org/yxiong/xy_color)
+
 Utilities and demos for color science in Python.
 
 Author: Ying Xiong.  

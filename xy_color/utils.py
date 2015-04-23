@@ -143,8 +143,8 @@ def xy_inside_horseshoe(xx, yy, horseshoe_curve):
     # connecting two end points.
     x_from_y_01 = interp1d(horseshoe_curve[:y1_index+1, 1],
                            horseshoe_curve[:y1_index+1, 0])
-    x_from_y_12 = interp1d(horseshoe_curve[y1_index:, 1],
-                           horseshoe_curve[y1_index:, 0])
+    x_from_y_12 = interp1d(horseshoe_curve[y1_index:, 1][::-1],
+                           horseshoe_curve[y1_index:, 0][::-1])
     x_from_y_02 = interp1d(horseshoe_curve[np.ix_([0,-1], [1])].flatten(),
                            horseshoe_curve[np.ix_([0,-1], [0])].flatten())
 
