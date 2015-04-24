@@ -19,6 +19,7 @@ Already up-to-date.
 # will clean it up in the `master` branch.
 
 $ git checkout [-b] dev
+$ git pull origin dev
 # Make some edits.
 $ git commit -am "commit message"
 # Make more edits.

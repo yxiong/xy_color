@@ -5,8 +5,15 @@
 
 from setuptools import setup
 
-with open("requirements.txt", 'r') as f:
-    install_requires = f.read().splitlines()
+install_requires = [
+    "matplotlib",
+    "numpy",
+    "numpydoc",
+    "pillow",
+    "scipy",
+    "setuptools",
+    "sphinx==1.2.3",
+]
 
 setup(
     name = "xy_color",

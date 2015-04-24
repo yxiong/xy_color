@@ -1,7 +1,0 @@
-matplotlib
-numpy
-numpydoc
-pillow
-scipy
-setuptools
-sphinx==1.2.3
