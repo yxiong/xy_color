@@ -1,15 +1,16 @@
-.. xy_color documentation master file, created by
-   sphinx-quickstart on Thu Apr 23 17:24:32 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to xy_color's documentation!
 ====================================
 
-Contents:
+Utilities and demos for color science in Python.
 
 .. toctree::
    :maxdepth: 2
+
+   getting_started
+   introduction
+   demos
+   data
+   utils
 
 
 
