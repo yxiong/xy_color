@@ -4,6 +4,7 @@
 # Created: Oct 22, 2014.
 
 import numpy as np
+import scipy.misc
 
 from scipy.interpolate import interp1d
 
@@ -88,3 +89,35 @@ def xy_inside_horseshoe(xx, yy, horseshoe_curve):
                                         xx_between_y2_y1 < xr_between_y2_y1)
 
     return inside
+
+def im2uint8(img):
+    """Convert the image into type `np.uint8`."""
+    if img.dtype == np.uint8:
+        return img
+    elif img.dtype == np.uint16:
+        return np.asarray(img / 256, np.uint8)
+    elif img.dtype == np.float32 or img.dtype == np.float64:
+        return np.asarray(img * 255.0, np.uint8)
+    else:
+        raise Exception("Unexpected image data type " + str(img.dtype))
+
+def im2float32(img):
+    """Convert the image into type `np.float32`."""
+    if img.dtype == np.uint8:
+        return np.asarray(img, np.float32) / 255.0
+    elif img.dtype == np.uint16:
+        return np.asarray(img, np.float32) / 65535.0
+    elif img.dtype == np.float32 or img.dtype == np.float64:
+        return np.asarray(img, np.float32)
+    else:
+        raise Exception("Unexpected image data type " + str(img.dtype))
+
+def imread(filename, dtype = np.float32):
+    """Read the image from `filename` and convert it into `dtype`."""
+    assert (dtype == np.float32)
+    return im2float32(scipy.misc.imread(filename))
+
+def imsave(filename, image, dtype = np.uint8):
+    """Convert the `image` into `dtype` before save it to `filename`."""
+    assert (dtype == np.uint8)
+    return scipy.misc.imsave(filename, im2uint8(image))

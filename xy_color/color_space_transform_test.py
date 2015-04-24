@@ -5,9 +5,13 @@
 
 import itertools
 import numpy as np
+import scipy.misc
 import unittest
 
+from xy_python_utils.unittest_utils import check_near
+
 from color_space_transform import color_space_transform
+from utils import imread
 
 class ColorSpaceTransformTest(unittest.TestCase):
     def test_color_space_transform(self):
@@ -63,6 +67,20 @@ class ColorSpaceTransformTest(unittest.TestCase):
             for c in xrange(3):
                 self.assertAlmostEqual(dst_image[i,j,c], dst_pixel[c])
             self.assertEqual(dst_image[i,j,3], src_image[i,j,3])
+
+    def test_lenna(self):
+        srgb = imread("data/lenna/sRGB.png")
+        srgblin = imread("data/lenna/sRGB-linear.png")
+        xyz = imread("data/lenna/CIE-XYZ.png")
+
+        self.check_transform(srgb, srgblin, "sRGB", "sRGB-linear")
+        self.check_transform(srgb, xyz, "sRGB", "CIE-XYZ")
+
+    def check_transform(self, src_data, dst_data, src_space, dst_space,
+                        tol = 0.02):
+        cst = color_space_transform
+        check_near(cst(src_data, src_space, dst_space), dst_data, tol)
+        check_near(cst(dst_data, dst_space, src_space), src_data, tol)
 
 if __name__ == "__main__":
     unittest.main()

@@ -40,6 +40,24 @@ def srgb_gamma(linear_data):
     nonlinear_data[part2] = 1.055 * linear_data[part2] ** (1/2.4) - 0.055
     return nonlinear_data
 
+def srgb_inverse_gamma(nonlinear_data):
+    """The per-channel transform from nonlinear sRGB data to linear sRGB data.
+
+    The conversion formula is::
+
+      C_linear = C / 12.92,                     if C <= 0.04045
+                 ((C + 0.055) / 1.055) ^ 2.4,   otherwise
+
+    | Accessed from: http://www.color.org/chardata/rgb/srgb.pdf.
+    | Accessed on: Apr 24, 2015.
+    """
+    linear_data = np.empty(nonlinear_data.shape)
+    part1 = (nonlinear_data<=0.04045)
+    linear_data[part1] = nonlinear_data[part1] / 12.92
+    part2 = ~part1
+    linear_data[part2] = ((nonlinear_data[part2] + 0.055) / 1.055) ** 2.4
+    return linear_data
+
 # Chromaticity coordinates (xy) for primaries of Adobe RGB (1998) color space.
 # Accessed from: http://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf.
 # Accessed on: Nov 30, 2014.

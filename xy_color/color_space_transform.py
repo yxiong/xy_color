@@ -112,3 +112,6 @@ def _transform_srgblin_to_xyz(src_data):
 
 def _transform_srgblin_to_srgb(src_data):
     return srgb_gamma(src_data)
+
+def _transform_srgb_to_srgblin(src_data):
+    return srgb_inverse_gamma(src_data)
