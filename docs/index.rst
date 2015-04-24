@@ -9,6 +9,7 @@ Utilities and demos for color science in Python.
    getting_started
    introduction
    demos
+   color_space_transform
    data
    utils
 
