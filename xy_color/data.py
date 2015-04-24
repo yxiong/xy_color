@@ -26,12 +26,13 @@ srgb_to_xyz_matrix = np.linalg.inv(xyz_to_srgb_matrix)
 def srgb_gamma(linear_data):
     """The per-channel, nonlinear transfer function used in sRGB.
 
-         / 12.92 * C_linear,                     if C_linear <= 0.0031308
-    C = |
-         \ 1.055 * C_linear ** (1/2.4) - 0.055,  otherwise
+    The conversion formula is::
 
-    Accessed from: http://www.color.org/chardata/rgb/srgb.pdf.
-    Accessed on: Oct 28, 2014."""
+      C = 12.92 * C_linear,                     if C_linear <= 0.0031308
+          1.055 * C_linear ** (1/2.4) - 0.055,  otherwise
+
+    | Accessed from: http://www.color.org/chardata/rgb/srgb.pdf.
+    | Accessed on: Oct 28, 2014."""
     nonlinear_data = np.empty(linear_data.shape)
     part1 = (linear_data<=0.0031308)
     nonlinear_data[part1] = linear_data[part1] * 12.92
@@ -80,23 +81,32 @@ adobe_to_icc_pcs_matrix = np.array([
 def adobe_abs_to_norm_xyz(abs_xyz):
     """Converting the absolute XYZ to Adobe normalized XYZ.
 
+    The conversion formula is::
+
         Xn = (Xa - Xk) / (Xw - Xk) * Xw / Yw
         Yn = (Ya - Yk) / (Yw - Yk)
         Zn = (Za - Zk) / (Zw - Zk) * Zw / Yw
 
-    where (Xa, Ya, Za) is absolute XYZ value, (Xk, Yk, Zk) = (0.5282, 0.5557,
-    0.6052) is the reference display black point, (Xw, Yw, Zw)=(152.07, 160.00,
-    174.25) is the reference display white point, and (Xn, Yn, Zn) is the
-    normalized XYZ value.
+    where `(Xa, Ya, Za)` is absolute XYZ value, `(Xk, Yk, Zk) = (0.5282, 0.5557,
+    0.6052)` is the reference display black point, `(Xw, Yw, Zw) = (152.07,
+    160.00, 174.25)` is the reference display white point, and `(Xn, Yn, Zn)` is
+    the normalized XYZ value.
 
-    Input `abs_xyz` can be one of the followings format:
-      1. 1D ndarray of length 3.
-      2. 2D ndarray of size (3,N).
+    Parameters
+    ----------
+    abs_xyz: ndarray
+        Absolute XYZ values, of the following format:
+          * 1D ndarray of length 3.
+          * 2D ndarray of size (3,N).
 
-    Output will be of the same format as input.
+    Returns
+    -------
+    An `ndarray` of the same format as input.
 
-    Accessed from: http://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf.
-    Accessed on: Nov 30, 2014.
+    References
+    ----------
+    | Accessed from: http://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf.
+    | Accessed on: Nov 30, 2014.
 
     """
     # Set the parameters.
@@ -124,9 +134,10 @@ def adobe_gamma(linear_data):
     """The per-channel, nonlinear transfer function used in Adobe RGB (1998)
     color space.
 
-        C= C_linear ^ (1 / 2.19921875)
+    .. math::
+        C= ( C_{linear} ) ^ {1 / 2.19921875}
 
-    The value 2.19921875 is obtained from (2 + 51/256).
+    The value `2.19921875` is obtained from `(2 + 51/256)`.
 
     Accessed from: http://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf.
     Accessed on: Nov 30, 2014.
@@ -147,9 +158,9 @@ def read_cvrl_csv(csv_filename, empty_val = 0.0):
 
     Returns
     -------
-    An Nx4 (or sometimes Nx2) matrix, with the first column wavelength in unit
-    of nm, and following columns the corresponding functions with respect to
-    wavelength.
+    A `ndarray` of size `Nx2` or `Nx4`.
+        The first column is wavelength in unit of nm, and following columns the
+        corresponding functions with respect to wavelength.
 
     """
     with open(csv_filename, 'r') as f:
@@ -193,17 +204,18 @@ def load_fw(name, wl=None):
 
     Parameters
     ----------
-    name: a string for the name of function.
-          "xyz-cmfs": CIE-XYZ color matching functions.
-          "d65-spd": CIE-D65 spectral power distribution.
-
-    wl: wavelength list, optional.
+    name: str
+        A string for the name of function, currently support:
+          * "xyz-cmfs": CIE-XYZ color matching functions.
+          * "d65-spd": CIE-D65 spectral power distribution.
+    wl: ndarray
+        Wavelength list, optional.
 
     Returns
     -------
-    fw: the loaded function(s) of wavelength.
-
-    wl: the wavelength list.
+    fw : ndarray
+        The loaded function(s) of wavelength.
+    wl : ndarray
         It will be the same as input `wl` if it is not `None`, or will be loaded
         together with `fw` as input data.
     """
@@ -225,8 +237,7 @@ def load_fw(name, wl=None):
         return (fw, load_wl)
 
 def get_blackbody_spd(temperature, wl):
-    """Get blackbody radiation spectral power distribution.
-    """
+    """Get blackbody radiation spectral power distribution."""
     # Setup constants.
     h = 6.6260695729e-34    # Planck constant.
     c = 299792458           # Speed of light.

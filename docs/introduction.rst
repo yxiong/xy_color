@@ -17,7 +17,8 @@ I(\lambda) \bar{x}(\lambda) d\lambda`.
 
 Note that `SPD` and `CMF` should not be mistaken with each another. For example,
 the CIE-RGB color space uses three monochromatic (single-wavelength) primary
-colors, which means their `SPD`s are delta functions, but their `CMF`s are not.
+colors, which means their `SPD`\s are delta functions, but their `CMF`\s are
+not.
 
 `LMS`: a color space represented by the response of three types of cones of the
 human eye.

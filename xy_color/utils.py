@@ -43,20 +43,21 @@ def color_space_transform(src_data, src_space, dst_space):
 
     Parameters
     ----------
-    src_data: the input data to be transformed.
-        The data can be 'ndarray' of either one of following form:
-        1. a 3xN matrix, with each column representing a color vector.
-        2. an MxNx3 or MxNx4 image. The alpha channel will be preserved if
-           present.
+    src_data: ndarray
+        The input data to be transformed, of either one of following form:
+          1. a `3xN` matrix, with each column representing a color vector.
+          2. an `MxNx3` or `MxNx4` image. The alpha channel will be preserved if
+             present.
 
-    src_space, dst_space: color spaces to be transformed from and to.
-        Current supported color spaces are:
-        "CIE-XYZ", "CIE-xyY", "sRGB-linear" and "sRGB".
+    src_space, dst_space: string
+        Color spaces to be transformed from and to. Current supported color
+        spaces are: `"CIE-XYZ"`, `"CIE-xyY"`, `"sRGB-linear"` and `"sRGB"`.
 
     Returns
     -------
-    dst_data: the output data after transformation. It will be an 'ndarray' of
-        the same size as 'src_data.
+    dst_data : ndarray
+        The output data after transformation. It will be an `ndarray` of
+        the same size as `src_data`.
 
     """
     if len(src_data.shape) == 3:
@@ -113,17 +114,17 @@ def xy_inside_horseshoe(xx, yy, horseshoe_curve):
 
     Parameters
     ----------
-    xx, yy : ndarrays of the same size
+    xx, yy: ndarrays of the same size
         The (x,y) coordinates to be determined whether inside the horseshoe.
 
-    horseshoe_curve : an Nx2 matrix
-        Each row of the matrix is an (x,y) coordinate for a monochromatic color,
-        and the wavelength of those colors should increase from short (blue) to
-        long (red) monotonically.
+    horseshoe_curve: ndarray of size `Nx2`
+        Each row of the matrix is an `(x,y)` coordinate for a monochromatic
+        color, and the wavelength of those colors should increase from short
+        (blue) to long (red) monotonically.
 
     Returns
     -------
-    An ndarray of the same size as 'xx' and 'yy'.
+    A boolean `ndarray` of the same size as `xx` and `yy`.
 
     """
     # We assume the 'y' component of the curve is composed of a monotonically

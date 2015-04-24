@@ -4,7 +4,7 @@ Demos
 Show Spectral Functions
 -----------------------
 
-Show common spectral functions (`SPD`s and `CMF`s).
+Show common spectral functions (`SPD`\s and `CMF`\s).
 
 .. image:: _static/images/show_spectral_functions.png
 
