@@ -90,34 +90,62 @@ def xy_inside_horseshoe(xx, yy, horseshoe_curve):
 
     return inside
 
-def im2uint8(img):
+def im2uint8(img, color_space="default"):
     """Convert the image into type `np.uint8`."""
-    if img.dtype == np.uint8:
-        return img
-    elif img.dtype == np.uint16:
-        return np.asarray(img / 256, np.uint8)
-    elif img.dtype == np.float32 or img.dtype == np.float64:
-        return np.asarray(img * 255.0, np.uint8)
+    if color_space == "default":
+        if img.dtype == np.uint8:
+            return img
+        elif img.dtype == np.uint16:
+            return np.asarray(img / 256, np.uint8)
+        elif img.dtype == np.float32 or img.dtype == np.float64:
+            return np.asarray(img * 255.0, np.uint8)
+        else:
+            raise Exception("Unexpected image data type " + str(img.dtype))
+    elif color_space == "CIE-L*a*b*":
+        if img.dtype == np.uint8:
+            return img
+        elif img.dtype == np.float32 or img.dtype == np.float64:
+            dst = np.empty(img.shape, np.uint8)
+            dst[:,:,0] = img[:,:,0] * 255. / 100.
+            dst[:,:,1] = img[:,:,1] + 128.
+            dst[:,:,2] = img[:,:,2] + 128.
+            return dst
+        else:
+            raise Exception("Unexpected image data type " + str(img.dtype))
     else:
-        raise Exception("Unexpected image data type " + str(img.dtype))
+        raise Exception("Unexpected color space " + color_space)
 
-def im2float32(img):
+def im2float32(img, color_space="default"):
     """Convert the image into type `np.float32`."""
-    if img.dtype == np.uint8:
-        return np.asarray(img, np.float32) / 255.0
-    elif img.dtype == np.uint16:
-        return np.asarray(img, np.float32) / 65535.0
-    elif img.dtype == np.float32 or img.dtype == np.float64:
-        return np.asarray(img, np.float32)
+    if color_space == "default":
+        if img.dtype == np.uint8:
+            return np.asarray(img, np.float32) / 255.0
+        elif img.dtype == np.uint16:
+            return np.asarray(img, np.float32) / 65535.0
+        elif img.dtype == np.float32 or img.dtype == np.float64:
+            return np.asarray(img, np.float32)
+        else:
+            raise Exception("Unexpected image data type " + str(img.dtype))
+    elif color_space == "CIE-L*a*b*":
+        if img.dtype == np.uint8:
+            dst = np.empty(img.shape, np.float32)
+            dst[:,:,0] = np.asarray(img[:,:,0], "float32") / 255. * 100.
+            dst[:,:,1] = np.asarray(img[:,:,1]) - 128.
+            dst[:,:,2] = np.asarray(img[:,:,2]) - 128.
+            return dst
+        elif img.dtype == np.float32 or img.dtype == np.float64:
+            return np.asarray(img, np.float32)
+        else:
+            raise Exception("Unexpected image data type " + str(img.dtype))
     else:
-        raise Exception("Unexpected image data type " + str(img.dtype))
+        raise Exception("Unexpected color space " + color_space)
 
-def imread(filename, dtype = np.float32):
+def imread(filename, dtype=np.float32, color_space="default"):
     """Read the image from `filename` and convert it into `dtype`."""
     assert (dtype == np.float32)
-    return im2float32(scipy.misc.imread(filename))
+    return im2float32(scipy.misc.imread(filename), color_space=color_space)
 
-def imsave(filename, image, dtype = np.uint8):
+def imsave(filename, image, dtype=np.uint8, color_space="default"):
     """Convert the `image` into `dtype` before save it to `filename`."""
     assert (dtype == np.uint8)
-    return scipy.misc.imsave(filename, im2uint8(image))
+    return scipy.misc.imsave(filename, im2uint8(image, color_space=color_space))

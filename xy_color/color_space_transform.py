@@ -21,7 +21,8 @@ def color_space_transform(src_data, src_space, dst_space):
 
     src_space, dst_space: string
         Color spaces to be transformed from and to. Current supported color
-        spaces are: `"CIE-XYZ"`, `"CIE-xyY"`, `"sRGB-linear"` and `"sRGB"`.
+        spaces are: `"CIE-XYZ"`, `"CIE-xyY"`, `"sRGB-linear"`, `"sRGB"` and
+        `"CIE-L*a*b*"`.
 
     Returns
     -------
@@ -74,6 +75,7 @@ _color_space_name = {
     "CIE-xyY": "xyy",
     "sRGB": "srgb",
     "sRGB-linear": "srgblin",
+    "CIE-L*a*b*": "lab",
 }
 
 def _transform_xyy_to_xyz(src_data):
@@ -115,3 +117,63 @@ def _transform_srgblin_to_srgb(src_data):
 
 def _transform_srgb_to_srgblin(src_data):
     return srgb_inverse_gamma(src_data)
+
+def _transform_xyz_to_lab(src_data):
+    """Convert data from CIE-XYZ color space to CIE-L*a*b* color space.
+
+    See: https://en.wikipedia.org/wiki/Lab_color_space#CIELAB-CIEXYZ_conversions
+    Accessed on: Apr 24, 2015.
+    """
+    assert src_data.shape[0] == 3, "Input data must be 3xN matrix."
+    Xn = d65_xyz[0] / d65_xyz[1]
+    Yn = 1.
+    Zn = d65_xyz[2] / d65_xyz[1]
+    f = _lab_f
+
+    dst_data = np.empty(src_data.shape)
+    # L* = 116 f(Y / Yn) - 16.
+    dst_data[0:] = 116 * f(src_data[1,:] / Yn) - 16
+    # a* = 500 [f(X / Xn) - f(Y / Yn)].
+    dst_data[1:] = 500 * (f(src_data[0,:] / Xn) - f(src_data[1,:] / Yn))
+    # b* = 200 [f(Y / Yn) - f(Z / Zn)].
+    dst_data[2:] = 200 * (f(src_data[1,:] / Yn) - f(src_data[2,:] / Zn))
+
+    return dst_data
+
+def _lab_f(t):
+    f = np.empty(t.shape)
+    part1 = (t > ((6. / 29.) ** 3))
+    f[part1] = t[part1] ** (1. / 3.)
+    part2 = ~part1
+    f[part2] = 1. / 3. * (29. / 6.) ** 2 * t[part2] + 4. / 29.
+    return f
+
+def _transform_lab_to_xyz(src_data):
+    """Convert data from CIE-L*a*b* color space to CIE-XYZ color space.
+
+    See: https://en.wikipedia.org/wiki/Lab_color_space#CIELAB-CIEXYZ_conversions
+    Accessed on: Apr 24, 2015.
+    """
+    assert src_data.shape[0] == 3, "Input data must be 3xN matrix."
+    Xn = d65_xyz[0] / d65_xyz[1]
+    Yn = 1.
+    Zn = d65_xyz[2] / d65_xyz[1]
+    f_inv = _lab_f_inv
+
+    dst_data = np.empty(src_data.shape)
+    # X = Xn * f_inv((L* + 16) / 116 + a* / 500).
+    dst_data[0:] = Xn * f_inv((src_data[0,:]+16)/116 + src_data[1,:]/500)
+    # Y = Yn * f_inv((L* + 16) / 116)
+    dst_data[1:] = Yn * f_inv((src_data[0,:]+16)/116)
+    # Z = Zn * f_inv((L* + 16) / 116 - b* / 200)
+    dst_data[2:] = Zn * f_inv((src_data[0,:]+16)/116 - src_data[2,:]/200)
+
+    return dst_data
+
+def _lab_f_inv(t):
+    f_inv = np.empty(t.shape)
+    part1 = (t > (6. / 29.))
+    f_inv[part1] = t[part1] ** 3.
+    part2 = ~part1
+    f_inv[part2] = 3. * ((6. / 29.) ** 2) * (t[part2] - 4. / 29.)
+    return f_inv

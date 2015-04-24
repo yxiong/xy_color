@@ -24,7 +24,14 @@ The linear image converted from `sRGB.png` with inverse gamma.
 
 
 CIE-XYZ.png:
-The XYZ space image converted from `sRGB-linear.png`.
+The CIE-XYZ space image converted from `sRGB-linear.png`.
 >>> srgblin = imread("sRGB-linear.png", np.float32)
 >>> xyz = color_space_transform(srgblin, "sRGB-linear", "CIE-XYZ")
 >>> imsave("CIE-XYZ.png", xyz, np.uint8)
+
+
+CIE-Lab.png:
+The CIE-L*a*b* space image converted from `sRGB.png`.
+>>> srgb = imread("sRGB.png", np.float32)
+>>> lab = color_space_transform(srgb, "sRGB", "CIE-L*a*b*")
+>>> imsave("CIE-LAB.png", lab, np.uint8, "CIE-L*a*b*")

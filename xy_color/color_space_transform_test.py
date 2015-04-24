@@ -72,9 +72,11 @@ class ColorSpaceTransformTest(unittest.TestCase):
         srgb = imread("data/lenna/sRGB.png")
         srgblin = imread("data/lenna/sRGB-linear.png")
         xyz = imread("data/lenna/CIE-XYZ.png")
+        lab = imread("data/lenna/CIE-Lab.png", color_space="CIE-L*a*b*")
 
         self.check_transform(srgb, srgblin, "sRGB", "sRGB-linear")
         self.check_transform(srgb, xyz, "sRGB", "CIE-XYZ")
+        self.check_transform(srgb, lab, "sRGB", "CIE-L*a*b*")
 
     def check_transform(self, src_data, dst_data, src_space, dst_space,
                         tol = 0.02):
