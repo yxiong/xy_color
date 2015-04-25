@@ -239,11 +239,11 @@ def load_fw(name, wl=None):
     """
     # Load the 'fw' and corresponding 'load_wl'.
     if name == "xyz-cmfs":
-        csv_data = read_cvrl_csv("cvrl-data/ciexyz31_1.csv")
+        csv_data = read_cvrl_csv("data/cvrl/ciexyz31_1.csv")
         load_wl = csv_data[:,0]
         fw = csv_data[:, 1:].T
     elif name == "d65-spd":
-        csv_data = read_cvrl_csv("cvrl-data/Illuminantd65.csv")
+        csv_data = read_cvrl_csv("data/cvrl/Illuminantd65.csv")
         load_wl = csv_data[:,0]
         fw = csv_data[:,1]
     else:

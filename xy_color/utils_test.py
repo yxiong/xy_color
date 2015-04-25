@@ -12,7 +12,7 @@ from utils import *
 class UtilsTest(unittest.TestCase):
     def test_xy_inside_horseshoe(self):
         # Get a horseshoe curve.
-        xyz_cmfs = read_cvrl_csv("cvrl-data/ciexyz31_1.csv")
+        xyz_cmfs = read_cvrl_csv("data/cvrl/ciexyz31_1.csv")
         s = np.sum(xyz_cmfs[:, 1:], axis=1)
         horseshoe_curve = np.array([xyz_cmfs[:,1]/s, xyz_cmfs[:,2]/s]).T
 

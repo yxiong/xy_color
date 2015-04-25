@@ -16,22 +16,16 @@ scanning, whose nonlinearity is not clear. We use this assumption for test and
 demonstration purpose only.
 
 
-sRGB-linear.png:
-The linear image converted from `sRGB.png` with inverse gamma.
->>> srgb = imread("sRGB.png", np.float32)
->>> srgblin = color_space_transform(srgb, "sRGB", "sRGB-linear")
->>> imsave("sRGB-linear.png", srgblin, np.uint8)
+sRGB-linear.png, CIE-XYZ.png, CIE-Lab.png:
+The same image transformed into other color spaces:
 
+  >>> srgb = imread("sRGB.png", np.float32)
 
-CIE-XYZ.png:
-The CIE-XYZ space image converted from `sRGB-linear.png`.
->>> srgblin = imread("sRGB-linear.png", np.float32)
->>> xyz = color_space_transform(srgblin, "sRGB-linear", "CIE-XYZ")
->>> imsave("CIE-XYZ.png", xyz, np.uint8)
+  >>> srgblin = color_space_transform(srgb, "sRGB", "sRGB-linear")
+  >>> imsave("sRGB-linear.png", srgblin, np.uint8)
 
+  >>> xyz = color_space_transform(srgb, "sRGB", "CIE-XYZ")
+  >>> imsave("CIE-XYZ.png", xyz, np.uint8)
 
-CIE-Lab.png:
-The CIE-L*a*b* space image converted from `sRGB.png`.
->>> srgb = imread("sRGB.png", np.float32)
->>> lab = color_space_transform(srgb, "sRGB", "CIE-L*a*b*")
->>> imsave("CIE-LAB.png", lab, np.uint8, "CIE-L*a*b*")
+  >>> lab = color_space_transform(srgb, "sRGB", "CIE-L*a*b*")
+  >>> imsave("CIE-LAB.png", lab, np.uint8, "CIE-L*a*b*")
