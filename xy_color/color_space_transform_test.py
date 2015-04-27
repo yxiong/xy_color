@@ -5,13 +5,12 @@
 
 import itertools
 import numpy as np
-import scipy.misc
 import unittest
 
+from xy_python_utils.image_utils import imread
 from xy_python_utils.unittest_utils import check_near
 
 from color_space_transform import color_space_transform
-from utils import imread
 
 class ColorSpaceTransformTest(unittest.TestCase):
     def test_color_space_transform(self):

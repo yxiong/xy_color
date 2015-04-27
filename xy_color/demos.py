@@ -4,11 +4,16 @@
 # Created: Oct 23, 2014.
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
 
-from xy_python_utils.matplotlib_utils import *
-from data import *
-from utils import *
+from mpl_toolkits.mplot3d import Axes3D
+from xy_python_utils.matplotlib_utils import axes_equal_3d, impixelinfo
+
+from color_space_transform import color_space_transform
+from data import load_fw, get_blackbody_spd
+from data import srgb_red_xyz, srgb_green_xyz, srgb_blue_xyz
+from data import adobe_red_xy, adobe_green_xy, adobe_blue_xy
+from utils import normalize_columns, xy_inside_horseshoe
 
 def display_cmfs(wl, cmfs):
     plt.plot(wl, cmfs[0,:], 'r', lw=2)
