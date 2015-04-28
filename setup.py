@@ -9,10 +9,11 @@ install_requires = [
     "matplotlib",
     "numpy",
     "numpydoc",
-    "pillow",
+    "Pillow",
     "scipy",
     "setuptools",
-    "sphinx==1.2.3",
+    "Sphinx==1.2.3",
+    "tornado",
 ]
 
 setup(

@@ -6,10 +6,10 @@
 import io
 import numpy as np
 import os
-import PIL
 import tornado.ioloop
 import tornado.web
 
+from PIL import Image
 from xy_python_utils.image_utils import imread, imcast
 
 _this_file_path = os.path.dirname(__file__)
@@ -32,7 +32,7 @@ class ImageHandler(tornado.web.RequestHandler):
         self.render_image(img_data)
 
     def render_image(self, img_data):
-        img = PIL.Image.fromarray(imcast(img_data, np.uint8))
+        img = Image.fromarray(imcast(img_data, np.uint8))
         o = io.BytesIO()
         img.save(o, format="JPEG")
         s = o.getvalue()
