@@ -23,13 +23,20 @@ settings = {
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
+        range_value = self.get_query_argument("range", "1.0")
         self.render("web.html",
-                    img_src = "generated-img")
+                    img_src = "generated-img?range=" + range_value,
+                    range_value = range_value)
 
 class ImageHandler(tornado.web.RequestHandler):
+    def initialize(self):
+        self.original_image = imread("static/imgs/lenna.png")
+
     def get(self):
-        img_data = imread("static/imgs/lenna.png")
-        self.render_image(img_data)
+        range_value = float(self.get_query_argument("range", 1.0))
+        adjusted_image = self.original_image * range_value
+        adjusted_image[adjusted_image>1.0] = 1.0
+        self.render_image(adjusted_image)
 
     def render_image(self, img_data):
         img = Image.fromarray(imcast(img_data, np.uint8))

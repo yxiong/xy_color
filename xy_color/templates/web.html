@@ -6,5 +6,11 @@
   </head>
   <body>
     <img src="{{img_src}}">
+    <form>
+      <input type="range" min="0.0" max="3.0" value="{{range_value}}" step="0.1"
+             name="range" onchange="this.form.submit()">
+      <span id="range-value">{{range_value}}</span>
+    </form>
+    </script>
   </body>
 </html>

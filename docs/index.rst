@@ -12,6 +12,7 @@ Utilities and demos for color science in Python.
    color_space_transform
    data
    utils
+   web
 
 
 
