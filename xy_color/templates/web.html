@@ -7,9 +7,26 @@
   <body>
     <img src="{{img_src}}">
     <form>
-      <input type="range" min="0.0" max="3.0" value="{{range_value}}" step="0.1"
-             name="range" onchange="this.form.submit()">
-      <span id="range-value">{{range_value}}</span>
+      <p>
+        <span>Brightness:</span>
+        <span><input type="range" name="brightness"
+                     min="{{brightness_range['min']}}"
+                     max="{{brightness_range['max']}}"
+                     step="{{brightness_range['step']}}"
+                     value="{{brightness_range['value']}}"
+                     onchange="this.form.submit()"></span>
+        <span>{{brightness_range['value']}}</span>
+      </p>
+      <p>
+        <span>Contrast:</span>
+        <span><input type="range" name="contrast"
+                     min="{{contrast_range['min']}}"
+                     max="{{contrast_range['max']}}"
+                     step="{{contrast_range['step']}}"
+                     value="{{contrast_range['value']}}"
+                     onchange="this.form.submit()"></span>
+        <span>{{contrast_range['value']}}</span>
+      </p>
     </form>
     </script>
   </body>

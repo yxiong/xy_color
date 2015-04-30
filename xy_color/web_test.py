@@ -19,7 +19,7 @@ class WebTest(tornado.testing.AsyncHTTPTestCase):
         response = self.fetch("/non-exists")
         self.assertEqual(response.code, 404)
 
-        response = self.fetch("/generated-img")
+        response = self.fetch("/generated-img?brightness=20&contrast=1.8")
         self.assertEqual(response.code, 200)
         self.assertTrue(response.headers["Content-Type"].startswith("image"))
 

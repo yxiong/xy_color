@@ -12,6 +12,8 @@ import tornado.web
 from PIL import Image
 from xy_python_utils.image_utils import imread, imcast
 
+from color_space_transform import color_space_transform as cst
+
 _this_file_path = os.path.dirname(__file__)
 
 settings = {
@@ -22,20 +24,47 @@ settings = {
 }
 
 class MainHandler(tornado.web.RequestHandler):
+    def initialize(self):
+        self.brightness_range = {
+            "min": 0,
+            "max": 100,
+            "value": "50",   # TODO: compute on the fly.
+            "step": 1
+        }
+        self.contrast_range = {
+            "min": 0.0,
+            "max": 3.0,
+            "value": "1.0",
+            "step": 0.1
+        }
+
     def get(self):
-        range_value = self.get_query_argument("range", "1.0")
+        self.brightness_range["value"] = self.get_query_argument(
+            "brightness", self.brightness_range["value"])
+        self.contrast_range["value"] = self.get_query_argument(
+            "contrast", self.contrast_range["value"])
+        img_src = "generated-img?" + \
+                  "brightness=" + self.brightness_range["value"] + "&" + \
+                  "contrast=" + self.contrast_range["value"]
         self.render("web.html",
-                    img_src = "generated-img?range=" + range_value,
-                    range_value = range_value)
+                    img_src = img_src,
+                    brightness_range = self.brightness_range,
+                    contrast_range = self.contrast_range)
 
 class ImageHandler(tornado.web.RequestHandler):
     def initialize(self):
         self.original_image = imread("static/imgs/lenna.png")
+        self.original_lab = cst(
+            self.original_image, "sRGB", "CIE-L*a*b*")
 
     def get(self):
-        range_value = float(self.get_query_argument("range", 1.0))
-        adjusted_image = self.original_image * range_value
+        brightness = float(self.get_query_argument("brightness"))
+        contrast = float(self.get_query_argument("contrast"))
+        adjusted_lab = self.original_lab.copy()
+        self.adjust_l_channel(adjusted_lab[:,:,0], brightness, contrast)
+        adjusted_image = cst(adjusted_lab, "CIE-L*a*b*", "sRGB")
         adjusted_image[adjusted_image>1.0] = 1.0
+        adjusted_image[adjusted_image<0.0] = 0.0
         self.render_image(adjusted_image)
 
     def render_image(self, img_data):
@@ -46,6 +75,11 @@ class ImageHandler(tornado.web.RequestHandler):
         self.set_header("Content-type", "image/jpg")
         self.set_header("Content-length", len(s))
         self.write(s)
+
+    def adjust_l_channel(self, l, brightness, contrast):
+        l -= np.mean(l)
+        l *= contrast
+        l += brightness
 
 handlers = [
     (r"/", MainHandler),
