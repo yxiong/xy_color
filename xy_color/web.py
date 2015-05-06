@@ -3,9 +3,9 @@
 # Author: Ying Xiong.
 # Created: Apr 28, 2015.
 
-import io
 import numpy as np
-import os
+import os.path
+import StringIO
 import tornado.ioloop
 import tornado.web
 
@@ -14,13 +14,11 @@ from xy_python_utils.image_utils import imread, imcast
 
 from color_space_transform import color_space_transform as cst
 
-_this_file_path = os.path.dirname(__file__)
+_this_file_path = os.path.dirname(os.path.realpath(__file__))
 
 settings = {
     "static_path": os.path.join(_this_file_path, "static"),
     "template_path": os.path.join(_this_file_path, "templates"),
-    "debug": True,
-    "gzip": True
 }
 
 class MainHandler(tornado.web.RequestHandler):
@@ -53,7 +51,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 class ImageHandler(tornado.web.RequestHandler):
     def initialize(self):
-        self.original_image = imread("static/imgs/lenna.png")
+        self.original_image = imread(_this_file_path + "/static/imgs/lenna.png")
         self.original_lab = cst(
             self.original_image, "sRGB", "CIE-L*a*b*")
 
@@ -69,9 +67,10 @@ class ImageHandler(tornado.web.RequestHandler):
 
     def render_image(self, img_data):
         img = Image.fromarray(imcast(img_data, np.uint8))
-        o = io.BytesIO()
+        o = StringIO.StringIO()
         img.save(o, format="JPEG")
         s = o.getvalue()
+        o.close()
         self.set_header("Content-type", "image/jpg")
         self.set_header("Content-length", len(s))
         self.write(s)

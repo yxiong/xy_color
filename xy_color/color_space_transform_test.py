@@ -5,6 +5,7 @@
 
 import itertools
 import numpy as np
+import os
 import unittest
 
 from xy_python_utils.image_utils import imread
@@ -12,7 +13,11 @@ from xy_python_utils.unittest_utils import check_near
 
 from color_space_transform import color_space_transform
 
+_this_file_path = os.path.dirname(__file__)
+_data_path = _this_file_path + "/data"
+
 class ColorSpaceTransformTest(unittest.TestCase):
+
     def test_color_space_transform(self):
         # CIE-xyY to CIE-XYZ.
         src_data = np.array([[0.5, 0.5, 1.0],
@@ -68,10 +73,11 @@ class ColorSpaceTransformTest(unittest.TestCase):
             self.assertEqual(dst_image[i,j,3], src_image[i,j,3])
 
     def test_lenna(self):
-        srgb = imread("data/lenna/sRGB.png")
-        srgblin = imread("data/lenna/sRGB-linear.png")
-        xyz = imread("data/lenna/CIE-XYZ.png")
-        lab = imread("data/lenna/CIE-Lab.png", color_space="CIE-L*a*b*")
+        srgb = imread(_data_path + "/lenna/sRGB.png")
+        srgblin = imread(_data_path + "/lenna/sRGB-linear.png")
+        xyz = imread(_data_path + "/lenna/CIE-XYZ.png")
+        lab = imread(_data_path + "/lenna/CIE-Lab.png",
+                     color_space="CIE-L*a*b*")
 
         self.check_transform(srgb, srgblin, "sRGB", "sRGB-linear")
         self.check_transform(srgb, xyz, "sRGB", "CIE-XYZ")

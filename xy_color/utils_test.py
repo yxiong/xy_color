@@ -3,16 +3,20 @@
 # Author: Ying Xiong.
 # Created: Oct 23, 2014.
 
+import os
 import numpy as np
 import unittest
 
 from data import read_cvrl_csv
 from utils import *
 
+_this_file_path = os.path.dirname(__file__)
+_data_path = _this_file_path + "/data"
+
 class UtilsTest(unittest.TestCase):
     def test_xy_inside_horseshoe(self):
         # Get a horseshoe curve.
-        xyz_cmfs = read_cvrl_csv("data/cvrl/ciexyz31_1.csv")
+        xyz_cmfs = read_cvrl_csv(_data_path + "/cvrl/ciexyz31_1.csv")
         s = np.sum(xyz_cmfs[:, 1:], axis=1)
         horseshoe_curve = np.array([xyz_cmfs[:,1]/s, xyz_cmfs[:,2]/s]).T
 
