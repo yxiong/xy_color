@@ -35,6 +35,8 @@ class MainHandler(tornado.web.RequestHandler):
             "value": "1.0",
             "step": 0.1
         }
+        self.img_width = 512
+        self.img_height = 512
 
     def get(self):
         self.brightness_range["value"] = self.get_query_argument(
@@ -46,6 +48,8 @@ class MainHandler(tornado.web.RequestHandler):
                   "contrast=" + self.contrast_range["value"]
         self.render("web.html",
                     img_src = img_src,
+                    img_width = self.img_width,
+                    img_height = self.img_height,
                     brightness_range = self.brightness_range,
                     contrast_range = self.contrast_range)
 
